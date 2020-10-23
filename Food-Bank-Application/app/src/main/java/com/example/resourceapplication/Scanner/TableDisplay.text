@@ -1,0 +1,237 @@
+package com.example.resourceapplication.Scanner;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+import android.widget.Toast;
+
+
+import com.example.resourceapplication.LogIn.ConnectionClass;
+import com.example.resourceapplication.R;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.zip.Inflater;
+
+
+
+public class TableDisplay extends AppCompatActivity {
+    ArrayList<ArrayList<String>> resultlist1 = new ArrayList<ArrayList<String>>();
+    ArrayList<ArrayList<String>> resultlist2 = new ArrayList<ArrayList<String>>();
+    ArrayList<String> columnlist = new ArrayList<String>();
+    RelativeLayout relativelayout;
+    LayoutInflater inflater;
+    TableLayout tableLayout;
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_table_display);
+        inflater =  (LayoutInflater) TableDisplay.this.getSystemService(TableDisplay.LAYOUT_INFLATER_SERVICE);
+        tableLayout = (TableLayout) inflater.inflate(R.layout.activity_table_display, null);
+    }
+
+
+    protected void iniTable() {
+        /*
+        table = (TableLayout) findViewById(R.id.table_main);
+        //View view = inflater.inflate(R.layout.activity_table_view, parent_layout, false);
+        TableRow tbrow0 = new TableRow(this);
+        Log.d("Here",columnlist.get(0));
+        //table.setStretchAllColumns(true);
+       // table.bringToFront();
+        tbrow0.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT));
+        //TextView tv0 = new TextView(this);
+        //tv0.setText(" "+"A"+" ");
+        //tv0.setTextColor(Color.WHITE);
+        //tv0.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,TableRow.LayoutParams.WRAP_CONTENT));
+        //tbrow0.addView(tv0);
+        for(String a : columnlist){
+            TextView tv0 = new TextView(this);
+            tv0.setText(" "+a+" ");
+            tv0.setTextColor(Color.WHITE);
+            tbrow0.addView(tv0);
+        }
+        table.addView(tbrow0);
+        for(ArrayList a : resultlist1){
+           for(int i = 0;i<=10;i++){
+
+               TableRow tbrow = new TableRow(this);
+               TextView t1v = new TextView(this);
+               t1v.setText("" + i);
+               t1v.setTextColor(Color.RED);
+               t1v.setGravity(Gravity.CENTER);
+               tbrow.addView(t1v);
+           }
+            //table.removeAllViews();
+            //table.addView(tbrow0);
+        }
+         */
+
+
+
+
+
+
+        for (int i = 0; i < 10; i++) {
+
+            TableRow row = new TableRow(TableDisplay.this);
+            row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+
+            for (int j = 0; j < 10; j++) {
+
+                TextView cell = new TextView(TableDisplay.this);
+                cell.setLayoutParams(new TableRow.LayoutParams(
+                        TableRow.LayoutParams.WRAP_CONTENT,
+                        TableRow.LayoutParams.WRAP_CONTENT));
+
+                cell.setText(i + ", " + j);
+                row.addView(cell);
+            }
+
+            tableLayout.addView(row);
+        }
+
+        /*
+        TextView cell = new androidx.appcompat.widget.AppCompatTextView(this) {
+                    @Override
+                    protected void onDraw(Canvas canvas) {
+                        super.onDraw(canvas);
+                        Rect rect = new Rect();
+                        Paint paint = new Paint();
+                        paint.setStyle(Paint.Style.STROKE);
+                        paint.setColor(Color.WHITE);
+                        paint.setStrokeWidth(2);
+                        getLocalVisibleRect(rect);
+                        canvas.drawRect(rect, paint);
+                    }
+
+                };
+
+
+         */
+
+
+    }
+
+
+
+    class CreateTable extends AsyncTask<String, String, Boolean> {
+
+        @Override
+        protected void onPreExecute() {
+            Toast toastwait = Toast.makeText(TableDisplay.this, "Loading Table", Toast.LENGTH_LONG);
+        }
+
+        @Override
+        protected Boolean doInBackground(String... strings) {
+            Connection connect = ConnectionClass.CONN();
+            String query1 = "SELECT * FROM dbo.[EKANABAN DATABASE] where SHORTAGE = 1";
+            String query2 = "SELECT * FROM dbo.[EKANBAN DATABASE] where SHORTAGE = 0";
+            ResultSet resultset1 = null;
+            ResultSet resultset2 = null;
+            if (connect != null) {
+                try {
+
+                    assert connect != null;
+                    Statement fetchstatement1 = connect.createStatement();
+                    Statement fetchstatement2 = connect.createStatement();
+                    resultset1 = fetchstatement1.executeQuery(query1);
+                    resultset2 = fetchstatement2.executeQuery(query2);
+
+                    Log.d("Here", "I AM HERE");
+
+                    while (resultset1.next()) {
+                        ArrayList<String> temparraylist1 = new ArrayList<String>();
+                        for (int i = 1; i <= 11; i++) {
+                            temparraylist1.add(resultset1.getString(i));
+                        }
+                        resultlist1.add(temparraylist1);
+                    }
+
+                    while (resultset2.next()) {
+                        ArrayList<String> temparraylist2 = new ArrayList<String>();
+                        for (int i = 1; i <= 11; i++) {
+                            temparraylist2.add(resultset2.getString(i));
+                        }
+                        resultlist2.add(temparraylist2);
+                    }
+
+                    ResultSetMetaData rsmd = resultset2.getMetaData();
+
+                    for (int i = 1; i <= 11; i++) {
+                        columnlist.add(rsmd.getColumnName(i));
+                    }
+
+                    connect.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+
+                if (resultlist1.isEmpty() && resultlist2.isEmpty()) {
+                    return false;
+                }
+
+                return true;
+            } else {
+                return false;
+            }
+
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            if (aBoolean.equals(true)) {
+                iniTable();
+            } else {
+
+                Toast toastsuccess = Toast.makeText(TableDisplay.this, "Table cannot be loaded", Toast.LENGTH_LONG);
+
+
+            }
+        }
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
